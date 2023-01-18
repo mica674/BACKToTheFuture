@@ -1,0 +1,353 @@
+/* GLOBAL */
+@font-face {
+    font-family: Belleza;
+    src: url('../font/Belleza/Belleza-Regular.ttf');
+}
+
+
+/* MAIN.HTML */
+body{
+    background-color: #242424;
+    color: #fff;
+}
+
+h2{
+    font-family: Belleza;
+}
+
+h3{
+    font-family: Belleza;
+}
+
+p{
+    font-family: Belleza;
+}
+
+button{
+    font-family: Belleza;
+}
+
+.hr{
+    display: flex;
+    justify-content: center ;
+    height: 1px;
+}
+
+hr{
+    margin: 0;
+    color: #fbbc04;
+    width: 80vw;
+}
+
+/* NAVBAR */
+/* NavBar Burger button/text */
+h1{
+    font-family: Belleza;
+    color: #fbbc04;
+    font-size: 2.1875rem;
+    margin-left: 9vw;
+    margin-top: 1.2rem;
+}
+
+:root{
+    --bs-border-width: 0px; /*retire les bordures du bouton burger*/
+    /* --bs-light-rgb:#626262;retire le background de la navbar, qui est géré aussi par opacity */
+}
+
+.container-fluid{
+    padding: 0;
+}
+
+.navbar{
+    padding: 0;
+    --bs-navbar-toggler-focus-width: 0; /*retire la bordure au clic sur le bouton burger*/
+    --bs-navbar-color:#fff;/*Couleur des items de la liste de la navbar*/
+}
+
+.navbar-toggler-icon {
+    background: url("../img/icones/nailIconeLine.png");/*icone de burger personnalisé*/
+    background-size: 100%; /*Taille de l'icone burger dans le bouton*/
+    margin: 0;
+}
+
+.navbar-toggler{
+    --bs-navbar-toggler-font-size:150%;/*Taille de l'icone burger par rapport à la taille d'origine*/
+}
+
+.navbar-brand{
+    padding: 0;
+}    
+
+.navbarBurger{
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    grid-template-rows: repeat(1,1fr);
+}
+
+
+.navbar-nav{
+    font-family: Belleza;
+    font-size: 0.875rem;
+
+    /* margin-left: 60vw; */
+    /* border: 1px solid #fbbc04; */
+}    
+
+.nav-link{
+    padding: 0;
+}    
+
+.nav-item{
+    width: 26vw;
+    display: flex;
+    justify-content: center;
+}    
+
+.nav-button{
+    width: 26vw;
+    border: 0.1rem solid #fbbc04;
+    border-radius: 0.5rem;
+    padding: 0.2rem 1rem;
+}    
+
+/* CAROUSEL */
+.carouselTitle{
+    font-family: Belleza;
+    font-size: 0.875rem;
+    color: #fbbc04;
+    margin: 5rem 0 2rem 0;
+}
+
+
+/* PLACE & DATE + MAPS */
+.placeDate{
+    display: flex;
+    flex-direction: column;
+}
+
+.placeDate-placeText{
+    width: 40vw;
+    margin: 0 auto;
+}
+
+iframe{
+    width: 100vw;
+    height: 80vh;
+}
+
+
+/* RENDEZ-VOUS */
+.calendarRendezVous{
+    display: flex;
+    justify-content: center;
+    height: 60vh;
+}
+
+.calendarRendezVous>img{
+    width: 100vw;
+}
+
+.buttonPrendreRDV{
+    background-color: transparent;
+    color: #fff;
+    border-color: #fbbc04;
+    border-radius: 0.5rem;
+    padding: 0.2rem 1rem;
+    width: 60vw;
+}
+
+
+/* REVIEW */
+.reviewCard{
+    background-color: #484848;
+}
+
+.reviewRow{
+    padding: 0.2rem;
+}
+
+.reviewNickname, .reviewDate, .reviewComment{
+    background-color: #242424;
+    padding: 0 0.1rem;
+}
+
+.reviewComment{
+    height: 3rem;
+}
+
+#reviewBtn{
+    background-color: transparent;
+    color: #fff;
+    border-color: #fbbc04;
+    border-radius: 0.5rem;
+    padding: 0.2rem 1rem;
+    width: 60vw;
+}
+
+
+/* CONTACT */
+#contactBtn{
+    background-color: transparent;
+    color: #fff;
+    border-color: #fbbc04;
+    border-radius: 0.5rem;
+    padding: 0.2rem 1rem;
+    width: 50vw;
+}
+
+
+/* FOOTER */
+/* CLIKABLE LINKS */
+.clickableLinks{
+    height: 80vh;
+}
+
+/* SOCIAL NETWORK */
+.socialNetwork>div{
+    padding: 0;
+}
+
+.socialNetwork>div>img{
+    height: 3rem;
+    width: 3rem;
+}
+
+
+
+
+
+/* INSCRIPTION.HTML */
+
+form{
+    width: 100vw;
+}
+
+.loginFieldset{
+    font-size: 1.25rem;
+    color: #fff;
+    
+}
+
+label{
+    width: 80vw;
+    position: relative;
+    left: 0.7rem;
+    font-family: belleza;
+    font-size: 0.75rem;
+    color: #fbbc04;
+}
+
+input{
+    width: 80vw;
+    border-radius: 0.3rem;
+    height: 2.625rem;
+    padding-left: 0.5rem;
+}
+
+.registrationBtn{
+    background-color: transparent;
+    font-size: 1.25rem;
+    color: #fff;
+    border-color: #fbbc04;
+    border-radius: 0.5rem;
+    padding: 0.2rem 1rem;
+    width: 37.5vw;
+}
+
+.registrationSmall{
+    font-family: Belleza;
+    font-size: 0.7rem;
+    color: #fbbc04;
+}
+
+.alreadyRegistered{
+    color: #fbbc04;
+
+}
+
+
+/* CONNEXION.HTML */
+.forgotPassword, .noRegistered{
+    color: #fbbc04;
+}
+
+
+
+
+/* PRESTATIONS */
+/* Section 1 */
+.prestationsImgPres{
+    height: 25.5vh;
+}
+
+#imgPrestaPres1{
+    position: absolute;
+    width: 100vw;
+    height: 25.5vh;
+    opacity: 0.5;
+}
+
+#imgPrestaPres2{
+    position: relative;
+    top: 8vw;
+    left: 60vw;
+    width: 30vw;
+    border: 1px solid #fbbc04;
+    border-radius: 30vw;
+}
+
+/* .card{
+    background-color: #242424;
+    margin: 0 auto;
+} */
+
+/* Section 2 */
+.section2Img{
+    width: 94vw;
+}
+
+.section2Img>img{
+    height: 27.2vh;
+    width: 43.75vw;
+}
+
+
+/* TP PHP */
+.form-select{
+    margin: 0 auto;
+}
+
+.displayMonthYearSelected{
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.2rem;
+    text-transform: capitalize;
+    font-weight: bold;
+    margin: 0 auto;
+}
+
+.displayMonthYearAround{
+    border: 0;
+    background-color: transparent;
+    color: white;
+    text-transform: capitalize;
+}
+
+option, .card-header, select{
+    text-transform: capitalize;
+}
+
+.card{
+    border-radius: 0;
+    width: 14vw;
+    height: 14vw;
+    border: solid 2px black;
+}
+
+.opacite5{
+    opacity: 0.5;
+}
+
+.bg-disabled{
+    background-color: #76cdff;
+}

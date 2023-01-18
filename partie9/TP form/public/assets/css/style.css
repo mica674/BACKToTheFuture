@@ -1,0 +1,64 @@
+/* GLOBAL */
+@font-face {
+    font-family: Belleza;
+    src: url('../font/Belleza/Belleza-Regular.ttf');
+}
+
+*{
+    font-family: Belleza;
+}
+
+/* MAIN.HTML */
+body{
+    background-color: #242424;
+    color: #fff;
+}
+
+form{
+    width: 100vw;
+}
+
+.loginFieldset{
+    font-size: 1.25rem;
+    color: #fff;  
+}
+
+label, fieldset{
+    width: 80vw;
+    position: relative;
+    left: 0.7rem;
+    font-family: belleza;
+    font-size: 0.75rem;
+    color: #fbbc04;
+}
+
+input{
+    width: 80vw;
+    border-radius: 0.3rem;
+    height: 2.625rem;
+    padding-left: 0.5rem;
+}
+
+.registrationSmall{
+    font-family: Belleza;
+    font-size: 0.7rem;
+    color: #fbbc04;
+}
+
+.registrationBtn{
+    background-color: transparent;
+    font-size: 1.25rem;
+    color: #fff;
+    border-color: #fbbc04;
+    border-radius: 0.5rem;
+    padding: 0.2rem 1rem;
+    width: 37.5vw;
+}
+
+.form-select, #profilePicture, #xpDev{
+    width: 80vw;
+}
+
+input:invalid{
+    border: red solid 3px;
+}
