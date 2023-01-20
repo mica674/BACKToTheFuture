@@ -1,3 +1,136 @@
+<!-- PHP -->
+<?php
+
+// Création d'un tableau de données pour les niveaux d'études
+$webLanguages = ['HTML/CSS', 'PHP', 'Javascript', 'Python', 'Autres'];
+
+// CONSTANTES
+    // Décodage du json birthCountryList
+    $birthCountryBeforeDecode = file_GET_contents('./public/assets/json/birthCountryList.json');
+    $birthCountryList = json_decode($birthCountryBeforeDecode, true);
+    define('BIRTH_LANGUAGES', $birthCountryList['countries']);
+    // Création d'un tableau de données pour les niveaux d'études
+    define('STUDY_LEVEL', ['none' => 'Sans','bac' => 'BAC','bac2' => 'BAC+2','bac3' => 'BAC+3','sup' => 'Suoérieur']);
+    // Création d'un tableau de données pour les web langages
+    define('WEB_LANGUAGES', ['HTML/CSS', 'PHP', 'Javascript', 'Python', 'Autres']);
+    // REGEX
+        // Lastname
+        define('REGEXP_LASTNAME', "^[a-zA-ZÀ-ÿ' \-]{2,64}$");
+        // Linkedin
+        define('REGEXP_LINKEDIN', "^https:\/\/www.linkedin.com\/in\/([a-z]+)-([a-z]+)-([a-z0-9]+)\/$");
+        // Zipcode
+        define('REGEXP_ZIPCODE', "^(0[1-9]|[1-8]\d|9[0-8])\d{3}$");
+        // Birthday
+        define('REGEXP_BIRTHDAY', "^((19\d{2}|20[01]\d|202[1-3])\-(0[1-9]|1[0-2])\-(0[1-9]|[12][0-9]|3[01]))$");
+        
+
+// Récupérer les données du formulaire passées en POST
+$password = $_POST['password'] ?? '';
+$confirmedPassword = $_POST['confirmedPassword'] ?? '';
+$birthday = $_POST['birthday'] ?? '';
+$profilePicture = $_POST['profilePicture'] ?? '';
+$knownLanguages = $_POST['languages'] ?? '';
+
+// var_dump($password, $confirmedPassword, $lastname, $birthday, $birthCountry, $zipcode, $studyLevel, $profilePicture, $urlLinkedin, $knownLanguages);
+
+
+
+// Vérification des données
+if ($_SERVER['REQUEST_METHOD'] == 'POST') { //Si les données sont bien envoyées en POST
+
+
+    // EMAIL
+    $email = trim(filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL)); // Double nettoyage de l'email récupéré 
+
+    if (empty($email)) { //Si $email est vide
+        $error["email"] = 'L\'email n\'est pas renseigné'; //Message d'erreur EMAIL
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) { //Sinon si $email ne correspond pas à un format d'adresse email
+        $error["email"] = 'L\'email ne correspond pas au format requis pour un email'; //Message d'erreur EMAIL format
+    } 
+
+
+    // LASTNAME
+    // Nettoyage de tout les caractères ASCII 1 à 32
+    $lastname = trim(filter_input(INPUT_POST, 'lastname', FILTER_SANITIZE_SPECIAL_CHARS));
+    // Suppression des caractères précisés entre guillemets ""
+    // $lastname = trim(strip_tags($lastname), "\?\,\>\&#61;\&#62;\&#63;\&#33;\&#160;\&#173;\&#160;\ \&#173;\&#8206;\&#8207;");
+    
+    if (empty($lastname)) { //Si $lastname est vide
+        $error["lastname"] = 'Le nom n\'est pas renseigné'; //Message d'erreur lastname
+    } elseif (!filter_var($lastname, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>'/'.REGEXP_LASTNAME.'/')))) { //Sinon si $lastname ne correspond pas à un format lastname
+        $error["lastname"] = 'Le nom ne correspond pas au format requis pour un nom'; //Message d'erreur lastname format
+    }
+    
+
+    // URL
+    // Nettoyage de tout les caractères ASCII 1 à 32
+    $url = trim(filter_input(INPUT_POST, 'urlLinkedin', FILTER_SANITIZE_URL));
+    
+    if (empty($url)) { //Si $url est vide
+        $error["url"] = 'L\'url n\'est pas renseigné'; //Message d'erreur url
+    } elseif (!filter_var($url, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>'/'.REGEXP_LINKEDIN.'/')))) { //Sinon si $url ne correspond pas à un format url
+        $error["url"] = 'L\'url ne correspond pas au format requis pour un url linkedin'; //Message d'erreur url format
+    }
+    
+
+    // ZIPCODE
+    // Nettoyage de tout les caractères ASCII 1 à 32
+    $zipcode = trim(filter_input(INPUT_POST, 'zipcode', FILTER_SANITIZE_NUMBER_INT));
+    
+    if (empty($zipcode)) { //Si $zipcode est vide
+        $error["zipcode"] = 'L\'zipcode n\'est pas renseigné'; //Message d'erreur zipcode
+    } elseif (!filter_var($zipcode, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>'/'.REGEXP_ZIPCODE.'/')))) { //Sinon si $url ne correspond pas à un format url
+        $error["zipcode"] = 'Le code postal ne correspond pas au format requis pour un code postal francais'; //Message d'erreur url format
+    }
+
+
+    // BIRTH COUNTRY
+    // Nettoyage de tout les caractères ASCII 1 à 32
+    $birthCountry = trim(filter_input(INPUT_POST, 'birthCountry', FILTER_SANITIZE_SPECIAL_CHARS));
+    
+    if (empty($birthCountry)) { //Si $birthCountry est vide
+        $error["birthCountry"] = 'Le pays de naissance n\'est pas renseigné'; //Message d'erreur pays de naissance vide
+    } elseif (!(in_array($birthCountry, BIRTH_LANGUAGES))) { //Sinon si $birthCountry ne correspond pas à un des pays du json
+        $error["birthCountry"] = 'Le pays sélectionné ne correspond pas à un pays de la liste'; //Message d'erreur pays de naissance correspond pas au json
+    }
+    
+
+    // STUDY LEVEL
+    // Nettoyage de tout les caractères ASCII 1 à 32
+    $studyLevel = trim(filter_input(INPUT_POST, 'studyLevel', FILTER_SANITIZE_SPECIAL_CHARS));
+    
+    if (empty($studyLevel)) { //Si $studyLevel est vide
+        $error["studyLevel"] = 'Le niveau d\'étude n\'est pas renseigné'; //Message d'erreur niveau d'étude vide
+    } elseif (!(key_exists($studyLevel, STUDY_LEVEL))) {
+        $error["studyLevel"] = 'Le niveau d\'étude sélectionné ne correspond pas à un niveau d\étude de la liste'; //Message d'erreur niveau d'étude correspond pas à un niveau d'étude de la liste
+    }
+
+        // CORRECTION
+        // $studyLevel = intval(filter_input(INPUT_POST, 'studyLevel', FILTER_SANITIZE_NUMBER_INT));
+
+        // if($studyLevel<0 || $studyLevel>4){ // Il a mis de 0 à 4 dans ses value
+        //     $error['studyLevel'] = 'Valeur non valide';
+        // }
+
+    // BIRTHDAY
+    // Nettoyage de tout les caractères ASCII 1 à 32
+    $birthday = trim(filter_input(INPUT_POST, 'birthday', FILTER_SANITIZE_NUMBER_INT));
+    
+    if (empty($birthday)) { //Si $birthday est vide
+        $error["birthday"] = 'La date de naissance n\'est pas renseignée'; //Message d'erreur date de naissance pas renseigné
+    } elseif (!filter_var($birthday, FILTER_VALIDATE_REGEXP, array("options"=>array("regexp"=>'/'.REGEXP_BIRTHDAY.'/')))) { //Sinon si $url ne correspond pas à un format url
+        var_dump($birthday);
+        $error["birthday"] = 'La date de naissance n\'est pas valide'; //Message d'erreur url format
+    }
+
+
+}
+
+
+?>
+
+
+<!-- HTML -->
 <!DOCTYPE html>
 <html lang="fr">
 
@@ -12,348 +145,88 @@
 
 <body>
 
-    <form action="registrerBtn" method="post" class="d-flex flex-column align-items-center" id="registrationForm">
+    <form action="./index.php" method="post" class="d-flex flex-column align-items-center" id="registrationForm" novalidate>
         <fieldset class="loginFieldset">Formulaire</fieldset>
 
         <!-- EMAIL -->
         <label for="email" class="mt-1">E-mail <span class="registrationRequired">*</span></label>
-        <input type="email" name="email" id="email" class="inputForm" placeholder="E-mail" required pattern="^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$">
+        <input type="email" name="email" id="email" class="inputForm" placeholder="E-mail" required autocomplete="email" value="<?= $email ?? '' ?>">
+        <small <?=($error['email']?? false)?'class="text-danger"':''?>><?=$error['email'] ?? ''?></small>
         <!-- PASSWORD -->
         <label for="password" class="mt-1">Mot de passe <span class="registrationRequired">*</span></label>
-        <input type="password" name="password" id="password" class="inputForm" placeholder="Mot de passe" required pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{6,15}$">
+        <input type="password" name="password" id="password" class="inputForm inputPassword" placeholder="Mot de passe" required autocomplete="password" value="<?= $password ?? '' ?>" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{6,15}$">
+        <!-- CONFIRMED PASSWORD -->
+        <label for="confirmedPassword" class="mt-1">Confirmation du mot de passe <span class="registrationRequired">*</span></label>
+        <input type="password" name="confirmedPassword" id="confirmedPassword" class="inputForm inputPassword" placeholder="Confirmation du mot de passe" required value="<?= $confirmedPassword ?? '' ?>" autocomplete="password" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{6,15}$">
         <!-- LASTNAME -->
         <label for=" lastname" class="mt-1">Nom <span class="registrationRequired">*</span></label>
-        <input type="text" name="lastname" id="lastname" class="inputForm" placeholder="Nom" required pattern="[a-zA-Z]{2,64}">
+        <input type="text" name="lastname" id="lastname" class="inputForm" placeholder="Nom" required autocomplete="family-name" value="<?= $lastname ?? '' ?>" pattern="<?=REGEXP_LASTNAME?>">
+        <small <?=($error['lastname']?? false)?'class="text-danger"':''?>><?=$error['lastname'] ?? ''?></small>
         <!-- BIRTHDAY -->
         <label for="birthday" class="mt-1">Date de naissance <span class="registrationRequired">*</span></label>
-        <input type="date" name="birthday" id="birthday" class="inputForm" placeholder="Date de naissance" required>
+        <input type="date" name="birthday" id="birthday" class="inputForm" placeholder="Date de naissance" required autocomplete="bday" value="<?= $birthday ?? '' ?>" min="1900-01-01" max="2000-01-01">
+        <small <?=($error['birthday']?? false)?'class="text-danger"':''?>><?=$error['birthday'] ?? ''?></small>
         <!-- COUNTRY OF BIRTH -->
-        <label for="countryOfBirth" class="form-label mt-1">Pays de naissance <span class="registrationRequired">*</span></label>
-        <select class="form-select" name="pays" id="countryOfBirth">
-            <option value="France" selected>France </option>
-
-            <option value="Afghanistan">Afghanistan </option>
-            <option value="Afrique_Centrale">Afrique_Centrale </option>
-            <option value="Afrique_du_sud">Afrique_du_Sud </option>
-            <option value="Albanie">Albanie </option>
-            <option value="Algerie">Algerie </option>
-            <option value="Allemagne">Allemagne </option>
-            <option value="Andorre">Andorre </option>
-            <option value="Angola">Angola </option>
-            <option value="Anguilla">Anguilla </option>
-            <option value="Arabie_Saoudite">Arabie_Saoudite </option>
-            <option value="Argentine">Argentine </option>
-            <option value="Armenie">Armenie </option>
-            <option value="Australie">Australie </option>
-            <option value="Autriche">Autriche </option>
-            <option value="Azerbaidjan">Azerbaidjan </option>
-
-            <option value="Bahamas">Bahamas </option>
-            <option value="Bangladesh">Bangladesh </option>
-            <option value="Barbade">Barbade </option>
-            <option value="Bahrein">Bahrein </option>
-            <option value="Belgique">Belgique </option>
-            <option value="Belize">Belize </option>
-            <option value="Benin">Benin </option>
-            <option value="Bermudes">Bermudes </option>
-            <option value="Bielorussie">Bielorussie </option>
-            <option value="Bolivie">Bolivie </option>
-            <option value="Botswana">Botswana </option>
-            <option value="Bhoutan">Bhoutan </option>
-            <option value="Boznie_Herzegovine">Boznie_Herzegovine </option>
-            <option value="Bresil">Bresil </option>
-            <option value="Brunei">Brunei </option>
-            <option value="Bulgarie">Bulgarie </option>
-            <option value="Burkina_Faso">Burkina_Faso </option>
-            <option value="Burundi">Burundi </option>
-
-            <option value="Caiman">Caiman </option>
-            <option value="Cambodge">Cambodge </option>
-            <option value="Cameroun">Cameroun </option>
-            <option value="Canada">Canada </option>
-            <option value="Canaries">Canaries </option>
-            <option value="Cap_vert">Cap_Vert </option>
-            <option value="Chili">Chili </option>
-            <option value="Chine">Chine </option>
-            <option value="Chypre">Chypre </option>
-            <option value="Colombie">Colombie </option>
-            <option value="Comores">Colombie </option>
-            <option value="Congo">Congo </option>
-            <option value="Congo_democratique">Congo_democratique </option>
-            <option value="Cook">Cook </option>
-            <option value="Coree_du_Nord">Coree_du_Nord </option>
-            <option value="Coree_du_Sud">Coree_du_Sud </option>
-            <option value="Costa_Rica">Costa_Rica </option>
-            <option value="Cote_d_Ivoire">Côte_d_Ivoire </option>
-            <option value="Croatie">Croatie </option>
-            <option value="Cuba">Cuba </option>
-
-            <option value="Danemark">Danemark </option>
-            <option value="Djibouti">Djibouti </option>
-            <option value="Dominique">Dominique </option>
-
-            <option value="Egypte">Egypte </option>
-            <option value="Emirats_Arabes_Unis">Emirats_Arabes_Unis </option>
-            <option value="Equateur">Equateur </option>
-            <option value="Erythree">Erythree </option>
-            <option value="Espagne">Espagne </option>
-            <option value="Estonie">Estonie </option>
-            <option value="Etats_Unis">Etats_Unis </option>
-            <option value="Ethiopie">Ethiopie </option>
-
-            <option value="Falkland">Falkland </option>
-            <option value="Feroe">Feroe </option>
-            <option value="Fidji">Fidji </option>
-            <option value="Finlande">Finlande </option>
-            <option value="France">France </option>
-
-            <option value="Gabon">Gabon </option>
-            <option value="Gambie">Gambie </option>
-            <option value="Georgie">Georgie </option>
-            <option value="Ghana">Ghana </option>
-            <option value="Gibraltar">Gibraltar </option>
-            <option value="Grece">Grece </option>
-            <option value="Grenade">Grenade </option>
-            <option value="Groenland">Groenland </option>
-            <option value="Guadeloupe">Guadeloupe </option>
-            <option value="Guam">Guam </option>
-            <option value="Guatemala">Guatemala</option>
-            <option value="Guernesey">Guernesey </option>
-            <option value="Guinee">Guinee </option>
-            <option value="Guinee_Bissau">Guinee_Bissau </option>
-            <option value="Guinee equatoriale">Guinee_Equatoriale </option>
-            <option value="Guyana">Guyana </option>
-            <option value="Guyane_Francaise ">Guyane_Francaise </option>
-
-            <option value="Haiti">Haiti </option>
-            <option value="Hawaii">Hawaii </option>
-            <option value="Honduras">Honduras </option>
-            <option value="Hong_Kong">Hong_Kong </option>
-            <option value="Hongrie">Hongrie </option>
-
-            <option value="Inde">Inde </option>
-            <option value="Indonesie">Indonesie </option>
-            <option value="Iran">Iran </option>
-            <option value="Iraq">Iraq </option>
-            <option value="Irlande">Irlande </option>
-            <option value="Islande">Islande </option>
-            <option value="Israel">Israel </option>
-            <option value="Italie">italie </option>
-
-            <option value="Jamaique">Jamaique </option>
-            <option value="Jan Mayen">Jan Mayen </option>
-            <option value="Japon">Japon </option>
-            <option value="Jersey">Jersey </option>
-            <option value="Jordanie">Jordanie </option>
-
-            <option value="Kazakhstan">Kazakhstan </option>
-            <option value="Kenya">Kenya </option>
-            <option value="Kirghizstan">Kirghizistan </option>
-            <option value="Kiribati">Kiribati </option>
-            <option value="Koweit">Koweit </option>
-
-            <option value="Laos">Laos </option>
-            <option value="Lesotho">Lesotho </option>
-            <option value="Lettonie">Lettonie </option>
-            <option value="Liban">Liban </option>
-            <option value="Liberia">Liberia </option>
-            <option value="Liechtenstein">Liechtenstein </option>
-            <option value="Lituanie">Lituanie </option>
-            <option value="Luxembourg">Luxembourg </option>
-            <option value="Lybie">Lybie </option>
-
-            <option value="Macao">Macao </option>
-            <option value="Macedoine">Macedoine </option>
-            <option value="Madagascar">Madagascar </option>
-            <option value="Madère">Madère </option>
-            <option value="Malaisie">Malaisie </option>
-            <option value="Malawi">Malawi </option>
-            <option value="Maldives">Maldives </option>
-            <option value="Mali">Mali </option>
-            <option value="Malte">Malte </option>
-            <option value="Man">Man </option>
-            <option value="Mariannes du Nord">Mariannes du Nord </option>
-            <option value="Maroc">Maroc </option>
-            <option value="Marshall">Marshall </option>
-            <option value="Martinique">Martinique </option>
-            <option value="Maurice">Maurice </option>
-            <option value="Mauritanie">Mauritanie </option>
-            <option value="Mayotte">Mayotte </option>
-            <option value="Mexique">Mexique </option>
-            <option value="Micronesie">Micronesie </option>
-            <option value="Midway">Midway </option>
-            <option value="Moldavie">Moldavie </option>
-            <option value="Monaco">Monaco </option>
-            <option value="Mongolie">Mongolie </option>
-            <option value="Montserrat">Montserrat </option>
-            <option value="Mozambique">Mozambique </option>
-
-            <option value="Namibie">Namibie </option>
-            <option value="Nauru">Nauru </option>
-            <option value="Nepal">Nepal </option>
-            <option value="Nicaragua">Nicaragua </option>
-            <option value="Niger">Niger </option>
-            <option value="Nigeria">Nigeria </option>
-            <option value="Niue">Niue </option>
-            <option value="Norfolk">Norfolk </option>
-            <option value="Norvege">Norvege </option>
-            <option value="Nouvelle_Caledonie">Nouvelle_Caledonie </option>
-            <option value="Nouvelle_Zelande">Nouvelle_Zelande </option>
-
-            <option value="Oman">Oman </option>
-            <option value="Ouganda">Ouganda </option>
-            <option value="Ouzbekistan">Ouzbekistan </option>
-
-            <option value="Pakistan">Pakistan </option>
-            <option value="Palau">Palau </option>
-            <option value="Palestine">Palestine </option>
-            <option value="Panama">Panama </option>
-            <option value="Papouasie_Nouvelle_Guinee">Papouasie_Nouvelle_Guinee </option>
-            <option value="Paraguay">Paraguay </option>
-            <option value="Pays_Bas">Pays_Bas </option>
-            <option value="Perou">Perou </option>
-            <option value="Philippines">Philippines </option>
-            <option value="Pologne">Pologne </option>
-            <option value="Polynesie">Polynesie </option>
-            <option value="Porto_Rico">Porto_Rico </option>
-            <option value="Portugal">Portugal </option>
-
-            <option value="Qatar">Qatar </option>
-
-            <option value="Republique_Dominicaine">Republique_Dominicaine </option>
-            <option value="Republique_Tcheque">Republique_Tcheque </option>
-            <option value="Reunion">Reunion </option>
-            <option value="Roumanie">Roumanie </option>
-            <option value="Royaume_Uni">Royaume_Uni </option>
-            <option value="Russie">Russie </option>
-            <option value="Rwanda">Rwanda </option>
-
-            <option value="Sahara Occidental">Sahara Occidental </option>
-            <option value="Sainte_Lucie">Sainte_Lucie </option>
-            <option value="Saint_Marin">Saint_Marin </option>
-            <option value="Salomon">Salomon </option>
-            <option value="Salvador">Salvador </option>
-            <option value="Samoa_Occidentales">Samoa_Occidentales</option>
-            <option value="Samoa_Americaine">Samoa_Americaine </option>
-            <option value="Sao_Tome_et_Principe">Sao_Tome_et_Principe </option>
-            <option value="Senegal">Senegal </option>
-            <option value="Seychelles">Seychelles </option>
-            <option value="Sierra Leone">Sierra Leone </option>
-            <option value="Singapour">Singapour </option>
-            <option value="Slovaquie">Slovaquie </option>
-            <option value="Slovenie">Slovenie</option>
-            <option value="Somalie">Somalie </option>
-            <option value="Soudan">Soudan </option>
-            <option value="Sri_Lanka">Sri_Lanka </option>
-            <option value="Suede">Suede </option>
-            <option value="Suisse">Suisse </option>
-            <option value="Surinam">Surinam </option>
-            <option value="Swaziland">Swaziland </option>
-            <option value="Syrie">Syrie </option>
-
-            <option value="Tadjikistan">Tadjikistan </option>
-            <option value="Taiwan">Taiwan </option>
-            <option value="Tonga">Tonga </option>
-            <option value="Tanzanie">Tanzanie </option>
-            <option value="Tchad">Tchad </option>
-            <option value="Thailande">Thailande </option>
-            <option value="Tibet">Tibet </option>
-            <option value="Timor_Oriental">Timor_Oriental </option>
-            <option value="Togo">Togo </option>
-            <option value="Trinite_et_Tobago">Trinite_et_Tobago </option>
-            <option value="Tristan da cunha">Tristan de cuncha </option>
-            <option value="Tunisie">Tunisie </option>
-            <option value="Turkmenistan">Turmenistan </option>
-            <option value="Turquie">Turquie </option>
-
-            <option value="Ukraine">Ukraine </option>
-            <option value="Uruguay">Uruguay </option>
-
-            <option value="Vanuatu">Vanuatu </option>
-            <option value="Vatican">Vatican </option>
-            <option value="Venezuela">Venezuela </option>
-            <option value="Vierges_Americaines">Vierges_Americaines </option>
-            <option value="Vierges_Britanniques">Vierges_Britanniques </option>
-            <option value="Vietnam">Vietnam </option>
-
-            <option value="Wake">Wake </option>
-            <option value="Wallis et Futuma">Wallis et Futuma </option>
-
-            <option value="Yemen">Yemen </option>
-            <option value="Yougoslavie">Yougoslavie </option>
-
-            <option value="Zambie">Zambie </option>
-            <option value="Zimbabwe">Zimbabwe </option>
-
+        <label for="birthCountry" class="form-label mt-1">Pays de naissance <span class="registrationRequired">*</span></label>
+        <select class="form-select" name="birthCountry" id="birthCountry">
+            <?php
+            foreach ($birthCountryList["countries"] as $country) {
+                $selectCountry = 'France';
+                if (isset($birthCountry)) {
+                    $selectCountry = $birthCountry;
+                }
+            ?>
+                <option <?= ($country == $selectCountry) ? 'selected' : ''; ?>><?= $country ?></option>
+            <?php
+            }
+            ?>
         </select>
+        <small <?=($error['birthCountry']?? false)?'class="text-danger"':''?>><?=$error['birthCountry'] ?? ''?></small>
         <!-- ZIPCODE -->
         <label for="zipcode" class="mt-1" maxlegnth="1">Code postal <span class="registrationRequired">*</span></label>
-        <input type="text" name="zipcode" id="zipcode" class="inputForm" placeholder="Code postal" required pattern="^[0-9]{8}$" maxlength="5">
+        <input type="text" name="zipcode" id="zipcode" class="inputForm" placeholder="Code postal" required autocomplete="postal-code" value="<?= $zipcode ?? '' ?>" pattern="^[0-9]{5}$" maxlength="5">
         <!-- STUDY LEVEL -->
         <div class="ms-5">
-            <legend class="ms-4 mt-4">Niveau d'étude</legend>
+            <legend class="ms-4 mt-4">Niveau d'étude <span class="registrationRequired">*</span></legend>
+            <?php 
+            foreach (STUDY_LEVEL as $level => $levelFr) {
+            ?>
             <div class="form-check ms-5">
-                <input class="form-check-input" type="radio" name="studyLevel" id="studyLevel1" value="none">
-                <label class="form-check-label" for="studyLevel1">Sans</label>
+                <input class="form-check-input formRadio" type="radio" name="studyLevel" id="studyLevel<?=$level?>" value="<?=$level?>" <?=($studyLevel == $level)?'checked':''?>>
+                <label class="form-check-label" for="studyLevelNone"><?=$levelFr?></label>
             </div>
-            <div class="form-check ms-5">
-                <input class="form-check-input" type="radio" name="studyLevel" id="studyLevel2" value="bac">
-                <label class="form-check-label" for="studyLevel2">Bac</label>
-            </div>
-            <div class="form-check ms-5">
-                <input class="form-check-input" type="radio" name="studyLevel" id="studyLevel3" value="bac2">
-                <label class="form-check-label" for="studyLevel3">Bac+2</label>
-            </div>
-            <div class="form-check ms-5">
-                <input class="form-check-input" type="radio" name="studyLevel" id="studyLevel4" value="bac3">
-                <label class="form-check-label" for="studyLevel4">Bac+3</label>
-            </div>
-            <div class="form-check ms-5">
-                <input class="form-check-input" type="radio" name="studyLevel" id="studyLevel5" value="sup">
-                <label class="form-check-label" for="studyLevel5">Supérieur</label>
-            </div>
-            <!-- PROFILE PICTURE -->
-            <div class="form-group">
-                <label for="profilePicture" class="form-label mt-4">Photo de profil</label>
-                <input class="form-control" type="file" id="profilePicture" name="profilePicture">
-            </div>
-            <!-- URL LINKED -->
-            <label for="urlLinked" class="mt-1">URL compte linked</label>
-            <input type="url" name="urlLinked" id="urlLinked" class="inputForm" placeholder="https://example.fr">
-            <!-- KNOWN LANGUAGES -->
-            <label for="knownLanguages" class="mt-1">Quel langages web connaissez-vous ?</label>
-            <fieldset class="form-group">
-                <legend class="mt-4">Quel langages web connaissez-vous ?</legend>
+            <?php
+            }
+            ?>
+            <small <?=(($error['studyLevel']??false)?'class="text-danger"':'')?>><?=$error['studyLevel'] ?? ''?></small>
+        </div>
+        <!-- PROFILE PICTURE -->
+        <div class="form-group">
+            <label for="profilePicture" class="form-label mt-4">Photo de profil</label>
+            <input class="form-control" type="file" id="profilePicture" name="profilePicture" accept="image/jgg">
+        </div>
+        <!-- URL LINKED -->
+        <label for="urlLinkedin" class="mt-1">URL compte linked</label>
+        <input type="url" name="urlLinkedin" id="urlLinkedin" class="inputForm" placeholder="https://example.fr" pattern="<?=REGEXP_LINKEDIN?>">
+        <!-- KNOWN LANGUAGES -->
+        <fieldset class="form-group">
+            <legend class="mt-4">Quel langages web connaissez-vous ?</legend>
+            <?php
+            foreach (WEB_LANGUAGES as $value) { ?>
                 <div class="form-check ms-5">
-                    <input class="form-check-input" type="checkbox" value="" id="knownLanguageHtml" checked>
-                    <label class="form-check-label" for="knownLanguageHtml">HTML/CSS</label>
+                    <input class="form-check-input" name="languages[]" type="checkbox" value="<?= ($value == 'HTML/CSS') ? 'HTML' : $value ?>" id="knownLanguage<?= ($value == 'HTML/CSS') ? 'HTML' : $value ?>" <?= ($value == 'HTML/CSS') ? 'HTML' : $value ?>>
+                    <label class="form-check-label" for="knownLanguage<?= ($value == 'HTML/CSS') ? 'HTML' : $value ?>"><?= $value ?></label>
                 </div>
-                <div class="form-check ms-5">
-                    <input class="form-check-input" type="checkbox" value="" id="knownLanguagePhp">
-                    <label class="form-check-label" for="knownLanguagePhp">PHP</label>
-                </div>
-                <div class="form-check ms-5">
-                    <input class="form-check-input" type="checkbox" value="" id="knownLanguageJavascript">
-                    <label class="form-check-label" for="knownLanguageJavascript">JavaScript</label>
-                </div>
-                <div class="form-check ms-5">
-                    <input class="form-check-input" type="checkbox" value="" id="knownLanguagePython">
-                    <label class="form-check-label" for="knownLanguagePython">Python</label>
-                </div>
-                <div class="form-check ms-5">
-                    <input class="form-check-input" type="checkbox" value="" id="knownLanguageOther">
-                    <label class="form-check-label" for="knownLanguageOther">Autres</label>
-                </div>
-            </fieldset>
-            <!-- XP DEV/INFO -->
-            <div class="form-group">
-                <label for="xpDev" class="form-label mt-4">Racontez une expérience avec la programmation et/ou l'informatique que vous auriez pu avoir</label>
-                <textarea class="form-control" id="xpDev" rows="3"></textarea>
-            </div>
-            <small class="registrationSmall me-5">* Champs obligatoires pour s'inscrire</small>
-            <div class="registrationBtns mt-2 d-flex justify-content-center">
-                <button class="registrationBtn" id="registrerBtn">S'inscrire</button>
-            </div>
+            <?php } ?>
+        </fieldset>
+        <!-- XP DEV/INFO -->
+        <div class="form-group">
+            <label for="xpDev" class="form-label mt-4">Racontez une expérience avec la programmation et/ou l'informatique que vous auriez pu avoir</label>
+            <textarea class="form-control" id="xpDev" rows="3"></textarea>
+        </div>
+        <small class="registrationSmall me-5">* Champs obligatoires pour s'inscrire</small>
+        <div class="registrationBtns mt-2 d-flex justify-content-center">
+            <button class="registrationBtn" id="registrerBtn" <?=($studyLevel??false)?'':'disabled'?>>S'inscrire</button>
         </div>
     </form>
 

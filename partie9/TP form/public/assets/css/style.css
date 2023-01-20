@@ -55,10 +55,22 @@ input{
     width: 37.5vw;
 }
 
+#registrerBtn:disabled{
+    background-color: #484848;
+}
+
 .form-select, #profilePicture, #xpDev{
     width: 80vw;
 }
 
 input:invalid{
     border: red solid 3px;
+}
+
+.bgGreen{
+    border-color: rgb(47, 255, 127);
+}
+
+.bgRed{
+    border-color: red;
 }
